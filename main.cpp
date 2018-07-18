@@ -15,7 +15,6 @@ using std::endl;
 int main() {
     using boost::numeric::ublas::matrix;
     using boost::numeric::ublas::matrix_column;
-    boost::property_map<Graph, boost::vertex_color_t>::type color;
     matrix_market mm("/home/rostam/nos3.mtx");
     matrix<int> m = mm.to_ublas_matrix();
 
@@ -35,12 +34,12 @@ int main() {
             }
         }
 
-//        boost::iterator_property_map<int *, vertex_index_map> color(&color_vec.front(), get(boost::vertex_index, g));
+//        typedef property_map<Graph, boost::vertex_index_t>::const_type vertex_index_map;
+//        boost::iterator_property_map<int *, vertex_index_map> color(&color_vec.front(), boost::get(boost::vertex_index, g));
 //        int num_colors = boost::sequential_vertex_coloring(g, color);
-//        color(g);
+
         auto t = g.greedy_color();
         auto ord = g.optimum_order();
-//        print(ord);
         auto t2 = g.greedy_color_order(ord);
 
         int num_colors1 = std::get<0>(t);

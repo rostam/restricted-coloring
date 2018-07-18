@@ -117,7 +117,7 @@ public:
         for (int i : tmp) func(i);
     }
 
-    std::tuple<int,std::vector<int>> greedy_color_order(std::vector<int> order) {
+    std::tuple<int,std::vector<int>> greedy_color_order(std::vector<int> order, int max_color) {
         std::vector<unsigned int> forbiddenColors(num_v(), -1);
         for(int v : order) {
             forbiddenColors[0] = v;
@@ -127,9 +127,9 @@ public:
             });
             //Find first color which can be assigned to v
             auto result = find_if(forbiddenColors.begin(), forbiddenColors.end(), [&](int i) {return i != v;});
-            put_color_v(v, distance(forbiddenColors.begin(),result));
+            if(result <= max_color)
+                put_color_v(v, distance(forbiddenColors.begin(),result));
         }
-
         std::vector<int> colors;
         std::set<int> unique_colors;
         for_each_v([&](int v){
@@ -172,11 +172,10 @@ public:
             vertex_weight.push_back({v,sum});
         });
 
-//        std::cout << vertex_weight << std::endl;
         std::sort(begin(vertex_weight), end(vertex_weight), [](auto const &t1, auto const &t2) {
             return get<1>(t1) > get<1>(t2); // or use a custom compare function
         });
-//        std::cout << vertex_weight << std::endl;
+
         std::vector<int> ret;
         for(auto &t : vertex_weight)
             ret.push_back(get<0>(t));

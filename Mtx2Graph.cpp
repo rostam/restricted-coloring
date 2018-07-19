@@ -80,8 +80,7 @@ matrix_market::matrix_market(const char* filename) {
  * @return
  */
 boost::numeric::ublas::matrix<int> matrix_market::to_ublas_matrix() {
-    boost::numeric::ublas::matrix<int> m(M, N);
-
+    boost::numeric::ublas::matrix<int> m = boost::numeric::ublas::zero_matrix<int>(M, N);
     if (mm_is_symmetric(matcode)) {
         for (int i = 0; i < nz; ++i) {
             m(I[i], J[i]) = 1;

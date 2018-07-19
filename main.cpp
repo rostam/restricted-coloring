@@ -12,35 +12,45 @@ compute_misses(int num_colors, const std::vector<int> &color_vec, boost::numeric
 using std::cout;
 using std::endl;
 
+graph matrix2graph(const boost::numeric::ublas::matrix<int>& m, int index) {
+    graph g(m.size1());
+    for (int i = 0; i < m.size1(); i++) {
+        for (int j = i + 1; j < m.size1(); j++) {
+            int cnt = 0;
+            for (int k = 0; k < m.size2(); k++) {
+                if (m(k, i) != 0 && m(k, j) != 0) {
+                    cnt++;
+                }
+            }
+            if (cnt > index) {
+                g.add_edge(i, j, cnt);
+            }
+        }
+    }
+    return g;
+}
+
 int main() {
     using boost::numeric::ublas::matrix;
     using boost::numeric::ublas::matrix_column;
-    matrix_market mm("/home/rostam/nos3.mtx");
+//    matrix_market mm("/home/rostam/b1_ss.mtx");
+    matrix_market mm("/home/rostam/bcsstk01.mtx");
+//    matrix_market mm("/home/rostam/nos3.mtx");
     matrix<int> m = mm.to_ublas_matrix();
+    int min_index = 0;
+    int max_index = 2;
 
-    for (int index = 1; index <= 10; index++) {
-        graph g(m.size1());
-        for (int i = 0; i < m.size1(); i++) {
-            for (int j = i + 1; j < m.size1(); j++) {
-                int cnt = 0;
-                for (int k = 0; k < m.size2(); k++) {
-                    if (m(i, k) != 0 && m(j, k) != 0) {
-                        cnt++;
-                    }
-                }
-                if (cnt > index) {
-                    g.add_edge(i, j, cnt);
-                }
-            }
-        }
+    for (int index = min_index; index <= max_index; index++) {
+        graph g1 = matrix2graph(m,index);
+        graph g2 = matrix2graph(m,index);
 
 //        typedef property_map<Graph, boost::vertex_index_t>::const_type vertex_index_map;
 //        boost::iterator_property_map<int *, vertex_index_map> color(&color_vec.front(), boost::get(boost::vertex_index, g));
 //        int num_colors = boost::sequential_vertex_coloring(g, color);
 
-        auto t = g.greedy_color();
-        auto ord = g.optimum_order();
-        auto t2 = g.greedy_color_order(ord);
+        auto t = g1.greedy_color(100);
+        auto ord = g2.optimum_order();
+        auto t2 = g2.greedy_color_order(ord, 100);
 
         int num_colors1 = std::get<0>(t);
         std::vector<int> color_vec1 = std::get<1>(t);
@@ -51,7 +61,8 @@ int main() {
         int all_sum1 = compute_misses(num_colors1, color_vec1, m);
         int all_sum2 = compute_misses(num_colors2, color_vec2, m);
 
-        //        cout << misses[0] << endl;
+//        //        cout << misses[0] << endl;
+        cout << color_vec1 << " "  << color_vec2 << endl;
         cout << num_colors1 << " " << num_colors2 << endl;
         cout << all_sum1 << " " << all_sum2 << endl << endl;
     }
@@ -66,7 +77,7 @@ int compute_misses(int num_colors, const std::vector<int> &color_vec, boost::num
     }
 
     for (int i = 0; i < color_vec.size(); i++) {
-        misses[color_vec[i]] += column(m, i);
+        if(color_vec[i] != -1) misses[color_vec[i]] += column(m, i);
     }
     for (int i = 0; i < misses.size(); i++) {
         misses[i] /= 2;

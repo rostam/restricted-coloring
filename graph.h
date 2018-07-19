@@ -127,19 +127,22 @@ public:
             });
             //Find first color which can be assigned to v
             auto result = find_if(forbiddenColors.begin(), forbiddenColors.end(), [&](int i) {return i != v;});
-            if(result <= max_color)
-                put_color_v(v, distance(forbiddenColors.begin(),result));
+            auto res_color = distance(forbiddenColors.begin(),result);
+            if(res_color < max_color)
+                put_color_v(v, res_color);
         }
         std::vector<int> colors;
         std::set<int> unique_colors;
         for_each_v([&](int v){
             colors.push_back(get_color_v(v)-1);
-            unique_colors.insert(get_color_v(v));
+            int the_color = get_color_v(v);
+            if(the_color != -1)
+                unique_colors.insert(the_color);
         });
         return {unique_colors.size(), colors};
     }
 
-    std::tuple<int,std::vector<int>> greedy_color() {
+    std::tuple<int,std::vector<int>> greedy_color(int max_color) {
         std::vector<unsigned int> forbiddenColors(num_v(), -1);
         for_each_v([&](int v) {
             forbiddenColors[0] = v;
@@ -149,14 +152,18 @@ public:
             });
             //Find first color which can be assigned to v
             auto result = find_if(forbiddenColors.begin(), forbiddenColors.end(), [&](int i) {return i != v;});
-            put_color_v(v, distance(forbiddenColors.begin(),result));
+            auto res_color = distance(forbiddenColors.begin(),result);
+            if(res_color < max_color)
+                put_color_v(v, res_color);
         });
 
         std::vector<int> colors;
         std::set<int> unique_colors;
         for_each_v([&](int v){
-            colors.push_back(get_color_v(v)-1);
-            unique_colors.insert(get_color_v(v));
+            colors.push_back(get_color_v(v) - 1);
+            int the_color = get_color_v(v);
+            if(the_color != -1)
+                unique_colors.insert(the_color);
         });
         return {unique_colors.size(), colors};
     }

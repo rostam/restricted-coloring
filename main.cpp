@@ -7,6 +7,7 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <fstream>
 #include <numeric>
+#include <omp.h>
 
 int
 compute_misses(int num_colors, const std::vector<int> &color_vec, boost::numeric::ublas::matrix<int> &m);
@@ -65,6 +66,8 @@ int main(int argc, const char *argv[]) {
     std::ofstream out("results_" + std::string(matrix_name) + "_"
     + std::string(argv[2]) + "_" + std::string(argv[3]) + ".csv");
     out << "num_edges,cnat,cnew,clfo,csat,mnat,mnew,mlfo,msat" << endl;
+//    omp_set_num_threads(4);
+//#pragma omp parallel for
     for (int index = min_index; index <= max_index; index+=1) {
         cout << index << endl;
         graph g = matrix2graph(m, index);
@@ -88,11 +91,12 @@ int main(int argc, const char *argv[]) {
         auto[num_colors_sat, color_vec_sat] = g.saturation_degree_ordering_coloring(color);
         int all_misses_sat = compute_misses(num_colors_sat, color_vec_sat, m);
 
-
+//#pragma omp critical
         out << index << "," << num_colors_natural << "," << num_colors_newIdea << ","
             << num_colors_lfo << "," << num_colors_sat << ","
             << all_misses_natural << "," << all_misses_newIdea << ","
             << all_misses_lfo << "," << all_misses_sat << endl;
+
 //        }
     }
     out.flush();
@@ -107,15 +111,15 @@ int compute_misses(int num_colors, const std::vector<int> &color_vec, boost::num
         misses[i] = boost::numeric::ublas::zero_vector<int>(m.size2());
     }
     for (int i = 0; i < color_vec.size(); i++) {
-//        if (color_vec[i] != -1)
-            misses[color_vec[i]] += column(m, i);
-//        else misses[num_colors] += column(m, i);
+        misses[color_vec[i]] += column(m, i);
     }
 
-
     for (int i = 0; i < misses.size(); i++) {
-        misses[i] /= 2;
-        all_sum += sum(misses[i]);
+        for (int j = 0; j < misses[i].size(); j++) {
+            if (misses[i][j] > 1) all_sum+=misses[i][j];
+//        misses[i] = 2;
+//        all_sum += sum(misses[i]);
+        }
     }
 
     return all_sum;

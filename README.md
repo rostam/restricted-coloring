@@ -1,2 +1,3 @@
-# restricted-coloring
-A minimal version of  restricted coloring algorithm
+# Restricted Coloring
+A minimal version of a restricted coloring algorithm
+git push -u origin master

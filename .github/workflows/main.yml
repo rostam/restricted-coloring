@@ -8,5 +8,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: ghaction-cmake
-      uses: lpenz/ghaction-cmake@v0.1
+      - uses: actions/checkout@v1
+      - name: ghaction-cmake
+        uses: lpenz/ghaction-cmake@v0.1
